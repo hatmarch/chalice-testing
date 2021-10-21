@@ -43,9 +43,10 @@ A project has already been created by chalice with the `chalice new-project` com
 
 . Go into the `hello-chalice` directory
 . If `pipeline-codecommit.json` does not exist already, generate cloud formation for pipeline suitable for deploying chalice
+* NOTE: We use the `-b` option to create a CFT that doesn't have the buildspec.yml built in.  We have already defined a buildspec.yml in the root of the repo that deals with the fact that the code is in a sub-directory and not in the root of the repo 
 +
 ----
-chalice generate-pipeline --pipeline-version v2 pipeline-codecommit.json
+chalice generate-pipeline --pipeline-version v2 -b /dev/null pipeline-codecommit.json 
 ----
 +
 . Now deploy the cloud formation stack created.  This will create a code build pipeline and a CodeCommit repo
@@ -76,7 +77,25 @@ git config --global credential.https://git-codecommit.$(aws configure get region
 git config --global credential.https://git-codecommit.$(aws configure get region).amazonaws.com.UseHttpPath true
 ----
 +
-. Now push to remote to start the pipeline
+. Now push to remote to start the pipeline (if this fails, see <<Troubleshooting,Troubleshooting>>)
++
+----
+git push chalice-codecommit
+----
++
+. At this point, the pipeline should be triggered
++
+. When the pipeline is done, you can find your URL like this
++
+----
+ENDPOINT=$(echo "https://$(aws apigateway get-rest-apis | jq -c '.items[] | select( .name | contains("hello-chalice") ).id' | tr -d '"""').execute-api.$(aws configure get region).amazonaws.com/api")
+----
++
+. And invoke it like this
++
+----
+curl -s "${ENDPOINT}" | jq
+----
 
 == Troubleshooting
 
@@ -104,4 +123,14 @@ git config -l --show-origin | grep credential
 Set credentials globally with context
 ----
 sudo git config --system credential.https://git-codecommit.ap-southeast-2.amazonaws.com.helper '!aws codecommit credential-helper $@'
+----
+
+Get the rest-api id of the resource `$API_NAME` (with quotes stripped out)
+----
+aws apigateway get-rest-apis | jq -c '.items[] | select( .name | contains("${API_NAME}") ).id' | tr -d '"'
+----
+
+Repeatedly call an endpoint waiting for it change
+----
+while true; do curl -s "${ENDPOINT}" | jq; sleep 1; done
 ----
