@@ -18,7 +18,8 @@ RUN apt-get update \
     && apt-get -y install --no-install-recommends apt-utils dialog 2>&1 \
     #
     # Verify git, process tools, lsb-release (common in install instructions for CLIs) installed
-    && apt-get -y install git less jq procps lsb-release rsync zsh zplug apt-transport-https ca-certificates curl gnupg python3-pip \
+    # NOTE: Groff and man are for awscli and git help respectively
+    && apt-get -y install git less jq procps lsb-release rsync zsh zplug apt-transport-https ca-certificates curl gnupg python3-pip groff man \
     #
     # Install pylint
     && pip --disable-pip-version-check --no-cache-dir install pylint ipykernel docker-compose \
@@ -98,6 +99,10 @@ RUN mkdir -p ${PLUGIN_DIR}/hashicorp.com/edu/hashicups/0.3.1/linux_amd64 \
     && unzip ${HASHICUPS_ZIP} -d ${PLUGIN_DIR}/hashicorp.com/edu/hashicups/0.3.1/linux_amd64 \
     && chmod +x ${PLUGIN_DIR}/hashicorp.com/edu/hashicups/0.3.1/linux_amd64/* \
     && rm ${HASHICUPS_ZIP}
+
+# Install the credential helper for accessing code-commit repos by role
+RUN git config --global credential.helper '!aws codecommit credential-helper $@' \
+    && git config --global credential.UseHttpPath true
 
 # Switch back to dialog for any ad-hoc use of apt-get
 ENV DEBIAN_FRONTEND=
