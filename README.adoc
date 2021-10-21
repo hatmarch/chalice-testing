@@ -1,0 +1,29 @@
+== Connect to AWS Credentials 
+
+You can use this training with two different types of credentials.  Which credentials you use can be driven by an environment variable on the host
+
+
+.Valid settings for `AWS_CREDENTIAL_TYPE`
+|===
+|Value |Meaning
+
+|Canva
+|Uses `infra auth` to generate credentials for official Canva AWS accounts
+
+|Burner
+|Uses the Burner account Environment variables (see below) to attempt to use AWS SSO signin
+|===
+
+=== Burner Credentials
+
+If using the `Burner` credential type, ensure the variables below are set appropriately
+
+|===
+| Environment Variable   | Description
+
+| BURNER_SSO_PROFILE
+| This should be set to the name of the profile in your `~/.aws/config` file that contains the appropriate Burner Account SSO Login details
+
+| BURNER_AWS_PROFILE
+| This should be set to the name of the profile that represents the proper role assumption for the default account you wish to target.  This should also be present in your `~/.aws/config` file
+|===

@@ -1,0 +1,54 @@
+{
+	"name": "SAM and Terraform Demonstration",
+	"dockerFile": "Dockerfile",
+	"extensions": [
+		"ms-python.python",
+		"eamodio.gitlens",
+		"ms-python.vscode-pylance",
+		"visualstudioexptteam.vscodeintellicode",
+		"cstrap.python-snippets",
+		"asciidoctor.asciidoctor-vscode",
+		"hashicorp.terraform"
+	],
+	"settings": {
+		"python.pythonPath": "/usr/local/bin/python",
+		"python.testing.pytestArgs": [
+			"."
+		],
+		"python.testing.unittestEnabled": false,
+		"python.testing.nosetestsEnabled": false,
+		"python.testing.pytestEnabled": true,
+		"python.linting.pylintEnabled": true,
+		"python.linting.pylintPath": "/usr/local/bin/pylint",
+		"python.linting.enabled": true,
+		"terminal.integrated.shell.linux": "/bin/zsh",
+		"python.analysis.typeCheckingMode": "basic",
+		"workbench.colorTheme": "Monokai"
+	},
+	"containerEnv": {
+		// used with the postCreateCommand to log into aws via SSO.  Assumes a profile has been configured in the 
+		// host users ~/.aws/config file (see volume mounts below)   
+		"SSO_PROFILE": "${env:BURNER_SSO_PROFILE}",
+		// profile to use after login via SSO profile.  Usually this maps to an role assumption in a bespoke account
+		"AWS_PROFILE": "${env:BURNER_AWS_PROFILE}",
+		"AWS_REGION": "ap-southeast-2",
+		"REPO_HOME": "${containerWorkspaceFolder}",
+		"REPO_HOME_HOST": "${localWorkspaceFolder}",
+	},
+	"postCreateCommand": "./.devcontainer/workspace-setup/workspace-post-create.sh ${env:AWS_CREDENTIAL_TYPE} ${containerWorkspaceFolder}",
+	"initializeCommand": "./.devcontainer/workspace-setup/workspace-initialize.sh ${env:AWS_CREDENTIAL_TYPE} ${localWorkspaceFolder} ${containerWorkspaceFolder}",
+	// Comment out the next line to run as root instead. Linux users, 
+	// update Dockerfile with your user's UID/GID if not 1000.
+	"workspaceFolder": "${localWorkspaceFolder}",
+	"runArgs": [ 
+		"-v", "/var/run/docker.sock.raw:/var/run/docker.sock",
+		"-v", "${env:HOME}/.aws:/home/vscode/.aws",
+		"-v", "${localWorkspaceFolder}:${localWorkspaceFolder}",
+		"-u", "vscode",
+		// use local .oh-my-zsh configuration if it exists (overwriting one in container).
+		// uncomment the following line out if you want to use local installation on host
+		//"-v", "${env:HOME}/.oh-my-zsh:/home/jboss/.oh-my-zsh",
+
+		"-e", "AWS_SHARED_CREDENTIALS_FILE=${containerWorkspaceFolder}/aws-config/credentials"
+	]
+}
