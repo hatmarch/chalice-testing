@@ -1,3 +1,7 @@
+= Chalice Testing
+
+Adapted from link:https://github.com/aws/chalice[this repo]
+
 == Connect to AWS Credentials 
 
 You can use this training with two different types of credentials.  Which credentials you use can be driven by an environment variable on the host
@@ -27,3 +31,77 @@ If using the `Burner` credential type, ensure the variables below are set approp
 | BURNER_AWS_PROFILE
 | This should be set to the name of the profile that represents the proper role assumption for the default account you wish to target.  This should also be present in your `~/.aws/config` file
 |===
+
+== Creating a Pipeline
+
+[INFO]
+====
+This is summarized from link:https://aws.github.io/chalice/topics/cd.html[here]
+====
+
+A project has already been created by chalice with the `chalice new-project` command
+
+. Go into the `hello-chalice` directory
+. If `pipeline-codecommit.json` does not exist already, generate cloud formation for pipeline suitable for deploying chalice
++
+----
+chalice generate-pipeline --pipeline-version v2 pipeline-codecommit.json
+----
++
+. Now deploy the cloud formation stack created.  This will create a code build pipeline and a CodeCommit repo
++
+----
+aws cloudformation deploy --stack-name chalice-codecommit --template-file pipeline-codecommit.json --capabilities CAPABILITY_IAM
+----
++
+. The pipeline will fail b/c the repo is empty.  Run this command to add the created code-commit repo as a remote named `chalice-codecommit` to your repo
++
+----
+git remote add chalice-codecommit $(echo $(aws cloudformation describe-stacks --stack-name chalice-codecommit --query "Stacks[0].Outputs[?OutputKey=='SourceRepoURL'] | [0].OutputValue") | tr -d '"')
+----
++
+. Validate that the remote is there with a `git remote -v` if you like:
++
+----
+chalice-codecommit      https://git-codecommit.ap-southeast-2.amazonaws.com/v1/repos/hello-chalice (fetch)
+chalice-codecommit      https://git-codecommit.ap-southeast-2.amazonaws.com/v1/repos/hello-chalice (push)
+origin  https://github.com/hatmarch/chalice-testing.git (fetch)
+origin  https://github.com/hatmarch/chalice-testing.git (push)
+----
++
+. Setup a credential helper so that you can access the codecommit repo by role only (FIXME: global is not overriding correctly)
++
+----
+git config --global credential.https://git-codecommit.$(aws configure get region).amazonaws.com.helper '!aws codecommit credential-helper $@'
+git config --global credential.https://git-codecommit.$(aws configure get region).amazonaws.com.UseHttpPath true
+----
++
+. Now push to remote to start the pipeline
+
+== Troubleshooting
+
+If you have trouble accessing the remote codecommit repo with errors like this:
+----
+fatal: unable to access 'https://git-codecommit.ap-southeast-2.amazonaws.com/v1/repos/hello-chalice/': The requested URL returned error: 403
+----
+
+Then the issue might be the implicit system wide `/etc/gitconfig`
+
+First try:
+----
+sudo rm /etc/gitconfig
+----
+
+And if this doesn't work, you may need to reorder your `~/.gitconfig` so that the credential block for the codecommit repo comes first in the file
+
+== Appendix
+
+See git config
+----
+git config -l --show-origin | grep credential
+----
+
+Set credentials globally with context
+----
+sudo git config --system credential.https://git-codecommit.ap-southeast-2.amazonaws.com.helper '!aws codecommit credential-helper $@'
+----
