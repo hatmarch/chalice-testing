@@ -100,10 +100,6 @@ RUN mkdir -p ${PLUGIN_DIR}/hashicorp.com/edu/hashicups/0.3.1/linux_amd64 \
     && chmod +x ${PLUGIN_DIR}/hashicorp.com/edu/hashicups/0.3.1/linux_amd64/* \
     && rm ${HASHICUPS_ZIP}
 
-# Install the credential helper for accessing code-commit repos by role
-RUN git config --global credential.helper '!aws codecommit credential-helper $@' \
-    && git config --global credential.UseHttpPath true
-
 # Switch back to dialog for any ad-hoc use of apt-get
 ENV DEBIAN_FRONTEND=
 
