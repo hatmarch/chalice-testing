@@ -112,8 +112,7 @@
           "Fn::GetAtt": "CodeBuildRole.Arn"
         },
         "Source": {
-          "Type": "CODEPIPELINE",
-          "BuildSpec": "artifacts:\n  files:\n  - transformed.yaml\n  type: zip\nphases:\n  build:\n    commands:\n    - chalice package /tmp/packaged\n    - aws cloudformation package --template-file /tmp/packaged/sam.json --s3-bucket\n      ${APP_S3_BUCKET} --output-template-file transformed.yaml\n  install:\n    commands:\n    - pip install 'chalice>=1.26.0,<1.27.0'\n    - pip install -r requirements.txt\n    runtime-versions:\n      python: '3.9'\nversion: '0.2'\n"
+          "Type": "CODEPIPELINE"
         }
       }
     },
