@@ -32,6 +32,13 @@ If using the `Burner` credential type, ensure the variables below are set approp
 | This should be set to the name of the profile that represents the proper role assumption for the default account you wish to target.  This should also be present in your `~/.aws/config` file
 |===
 
+== Terraform Prerequisites
+
+The chalice demo allows the lambda to respond to an SNS topic, but it cannot create the topic.  To create the topic go to the `terraform` directory and run: 
+----
+terragrunt run-all apply
+----
+
 == Creating a Pipeline
 
 [INFO]
