@@ -7,7 +7,14 @@ app = Chalice(app_name='hello-chalice')
 def index():
     return {'hola': 'chalice'}
 
+@app.route('/foo')
+def foo():
+    return {'bar': 'baz'}
 
+@app.on_s3_event(bucket='mwh-test-chalice-bucket')
+def handler(event):
+    print("Object uploaded for bucket: %s, key: %s"
+          % (event.bucket, event.key))
 # The view function above will return {"hello": "world"}
 # whenever you make an HTTP GET request to '/'.
 #
