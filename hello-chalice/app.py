@@ -11,7 +11,7 @@ def index():
 def foo():
     return {'bar': 'baz'}
 
-@app.on_sns_message(topic='MyDemoTopic')
+@app.on_sns_message(topic='chalice-demo-topic')
 def handle_sns_message(event):
     app.log.debug("Received message with subject: %s, message: %s",
                   event.subject, event.message)
