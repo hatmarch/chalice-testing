@@ -16,10 +16,15 @@ def foo():
     return {'bar': 'baz'}
 
 #@app.route('/lease', methods=['POST'], api_key_required=True)
+# @app.route('/lease', methods=['POST'])
+# def create_lease():
+#     request_body_dict = json.loads(app.current_request.json_body, object_hook=lambda d: SimpleNamespace(**d))
+#     return { 'user': request_body_dict.username }
+
 @app.route('/lease', methods=['POST'])
 def create_lease():
-    request_body_dict = json.loads(app.current_request.json_body, object_hook=lambda d: SimpleNamespace(**d))
-    return { 'user': request_body_dict.username }
+    request_body_dict = app.current_request.json_body
+    return { 'user': request_body_dict['username'] }
 
 @app.on_sns_message(topic='chalice-demo-topic')
 def handle_sns_message(event):
