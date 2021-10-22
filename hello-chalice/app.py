@@ -11,7 +11,7 @@ def index():
 def foo():
     return {'bar': 'baz'}
 
-@app.on_s3_event(bucket='mwh-test-chalice-bucket')
+@app.on_s3_event(bucket='mwh-burner-chalice-testing')
 def handler(event):
     print("Object uploaded for bucket: %s, key: %s"
           % (event.bucket, event.key))
