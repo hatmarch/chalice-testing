@@ -1,5 +1,5 @@
 {
-	"name": "SAM and Terraform Demonstration",
+	"name": "Chalice Testing",
 	"dockerFile": "Dockerfile",
 	"extensions": [
 		"ms-python.python",
@@ -8,7 +8,8 @@
 		"visualstudioexptteam.vscodeintellicode",
 		"cstrap.python-snippets",
 		"asciidoctor.asciidoctor-vscode",
-		"hashicorp.terraform"
+		"hashicorp.terraform",
+		"lextudio.restructuredtext"
 	],
 	"settings": {
 		"python.pythonPath": "/usr/local/bin/python",

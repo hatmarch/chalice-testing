@@ -19,7 +19,8 @@ RUN apt-get update \
     #
     # Verify git, process tools, lsb-release (common in install instructions for CLIs) installed
     # NOTE: Groff and man are for awscli and git help respectively
-    && apt-get -y install git less jq procps lsb-release rsync zsh zplug apt-transport-https ca-certificates curl gnupg python3-pip groff man \
+    # npm for cdk installation
+    && apt-get -y install git less jq procps lsb-release rsync zsh zplug apt-transport-https ca-certificates curl gnupg python3-pip groff man npm \
     #
     # Install pylint
     && pip --disable-pip-version-check --no-cache-dir install pylint ipykernel docker-compose \
@@ -50,6 +51,9 @@ RUN apt-get update \
 # install the AWS cli
 RUN curl "https://d1vvhvl2y92vvt.cloudfront.net/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
     unzip awscliv2.zip && ./aws/install && rm awscliv2.zip && rm -rf ./aws
+
+# install the cdk
+RUN npm install -g aws-cdk
 
 # docker post-installation steps
 RUN groupadd docker && usermod -aG docker vscode && usermod -aG root vscode
@@ -85,7 +89,7 @@ RUN curl -L "https://github.com/aws/aws-sam-cli/releases/latest/download/aws-sam
 
 USER vscode
 
-RUN /usr/local/bin/python3 -m pip install -U pytest chalice --user && \
+RUN /usr/local/bin/python3 -m pip install -U pytest chalice "chalice[cdk]" --user && \
     sh -c "$(wget https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
 
 COPY --chown=vscode workspace-setup/zshrc.template /home/vscode/.zshrc
