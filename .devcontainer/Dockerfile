@@ -3,7 +3,7 @@
 # Licensed under the MIT License. See https://go.microsoft.com/fwlink/?linkid=2090316 for license information.
 #-------------------------------------------------------------------------------------------------------------
 
-FROM python:3.9
+FROM python:3.9 as devcontainer
 
 # Avoid warnings by switching to noninteractive
 ENV DEBIAN_FRONTEND=noninteractive
@@ -108,3 +108,36 @@ RUN mkdir -p ${PLUGIN_DIR}/hashicorp.com/edu/hashicups/0.3.1/linux_amd64 \
 ENV DEBIAN_FRONTEND=
 
 
+FROM devcontainer as code-server
+
+# Avoid warnings by switching to noninteractive
+ENV DEBIAN_FRONTEND=noninteractive
+
+USER root
+
+COPY --chown=vscode workspace-setup/ /tmp/workspace-setup
+
+RUN curl -fsSL https://code-server.dev/install.sh |   sh
+
+USER vscode
+
+# install extensions
+RUN code-server --install-extension golang.Go \
+    && code-server --install-extension eamodio.gitlens \
+    && code-server --install-extension asciidoctor.asciidoctor-vscode \
+    && code-server --install-extension ms-azuretools.vscode-docker \
+    && code-server --install-extension yzhang.markdown-all-in-one \
+    && code-server --install-extension robole.markdown-snippets \
+    && code-server --install-extension ms-python.python --force
+
+
+EXPOSE 8443
+
+RUN cd $HOME
+# Add --log debug for code-server logging
+# Use just --cert if you want a new cert generated
+ENTRYPOINT /tmp/workspace-setup/codeserver-workspace-initialize.sh "/project" || true && /usr/bin/code-server --bind-addr 0.0.0.0:8443 \
+    --cert /home/vscode/code-server-certs/localhost.crt --cert-key /home/vscode/code-server-certs/localhost.key
+
+# Switch back to dialog for any ad-hoc use of apt-get
+ENV DEBIAN_FRONTEND=
