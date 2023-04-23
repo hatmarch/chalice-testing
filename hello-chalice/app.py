@@ -6,7 +6,7 @@ app = Chalice(app_name='hello-chalice')
 
 @app.route('/')
 def index():
-    return {'hola': 'chalice'}
+    return {'guten tag': 'chalice'}
 
 @app.route('/foo')
 def foo():
