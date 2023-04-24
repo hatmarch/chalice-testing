@@ -6,3 +6,9 @@ __pycache__/
 .terraform/
 .terraform.lock.hcl
 *.tfstate
+
+# chalice
+**/.chalice/deployed/*.json
+
+# Mac
+.DS_Store
