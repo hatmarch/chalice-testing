@@ -1,6 +1,9 @@
 {
 	"name": "Chalice Testing",
-	"dockerFile": "Dockerfile",
+	"build": {
+		"dockerfile": "Dockerfile",
+		"target": "devcontainer",
+	},
 	"extensions": [
 		"ms-python.python",
 		"eamodio.gitlens",
@@ -42,7 +45,9 @@
 	// update Dockerfile with your user's UID/GID if not 1000.
 	"workspaceFolder": "${localWorkspaceFolder}",
 	"runArgs": [ 
-		"-v", "/var/run/docker.sock.raw:/var/run/docker.sock",
+		// Dockerfile not yet updated for ARM64
+		"--platform", "linux/amd64",
+		"-v", "/var/run/docker.sock:/var/run/docker.sock",
 		"-v", "${env:HOME}/.aws:/home/vscode/.aws",
 		"-v", "${localWorkspaceFolder}:${localWorkspaceFolder}",
 		"-u", "vscode",
